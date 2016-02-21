@@ -34,7 +34,7 @@ Complex Complex::operator-(const Complex& cc) {
 
 Complex Complex::operator*(const Complex& cc) {
     Complex c;
-    std::cout << cc.re << " " << cc.im << "i " << this->re << " " << this->im << "i" << std::endl;
+    if (TAG_DEBUG) std::cout << cc.re << " " << cc.im << "i " << this->re << " " << this->im << "i" << std::endl;
     c.re = this->re * cc.re - this->im * cc.im;
     c.im = this->re * cc.im + this->im * cc.re;
     return c;

@@ -1,13 +1,13 @@
 CC = g++
 CFLAGS = -Wall -std=c+11
 MAIN = main.out
-SRCS = sources/complex.cpp sources/matrix.cpp sources/quantumMath.cpp
+SRCS = sources/complex.cpp sources/quantumRegister.cpp main.cpp
 OBJS = $(SRCS:.cpp=.o)
 
 .PHONY: depend clean
 
 all: $(MAIN)
-	@echo "Simple compiler named mycc has been compiled"
+	@echo "Compilation of quantumlib completed."
 
 $(MAIN): $(OBJS)
 	$(CC) $(CFLAGS) $(INCLUDES) -o $(MAIN) $(OBJS) $(LFLAGS) $(LIBS)
