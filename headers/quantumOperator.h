@@ -20,7 +20,9 @@ namespace quantum {
             Matrix<Complex> Operator();
             void Operator(Matrix<Complex> newOp);
 
-            void Execute(QuantumRegister &qReg);
+            void Execute(QuantumRegister *qReg);
+
+            QuantumOperator Tensor(QuantumOperator b);
     };
 }
 

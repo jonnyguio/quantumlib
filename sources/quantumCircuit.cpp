@@ -35,8 +35,15 @@ void quantum::QuantumCircuit::AddOp(QuantumOperator nOp) {
     this->numOps++;
 }
 
+void quantum::QuantumCircuit::print() {
+    for (int i = 0; i < this->numOps; i++) {
+        this->ops[i].Operator().print();
+        std::cout << std::endl;
+    }
+}
+
 void quantum::QuantumCircuit::Execute(QuantumRegister *qReg1) {
     for (int i = 0; i < this->numOps; i++) {
-        this->ops[i].Execute(*qReg1);
+        this->ops[i].Execute(qReg1);
     }
 }

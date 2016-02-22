@@ -69,7 +69,7 @@ void quantum::QuantumRegister::calcProb() {
     res = (double *) malloc(sizeof(double) * pow(2, this->numQubits));
 
     for (int i = 0; i < this->qubits.R(); i++) {
-            res[i] = pow(this->qubits.M()[i][0].modulo(), 2);
+        res[i] = pow(this->qubits.M()[i][0].modulo(), 2);
     }
 
     this->probs = res;
@@ -77,14 +77,16 @@ void quantum::QuantumRegister::calcProb() {
 
 void quantum::QuantumRegister::printProb() {
     for (int i = 0; i < this->qubits.R(); i++) {
-        std::cout << "|";
-        for (int k = 0; k < this->numQubits; k++) {
-            if (i % (int) pow(2, this->numQubits - k) < (int) pow(2, this->numQubits - k - 1))
-                std::cout << "0";
-            else
-                std::cout << "1";
+        if (this->probs[i] > 0) {
+            std::cout << "|";
+            for (int k = 0; k < this->numQubits; k++) {
+                if (i % (int) pow(2, this->numQubits - k) < (int) pow(2, this->numQubits - k - 1))
+                    std::cout << "0";
+                else
+                    std::cout << "1";
+            }
+            std::cout << "> = " << this->probs[i] * 100 << "%" << std::endl;
         }
-        std::cout << "> = " << this->probs[i] * 100 << "%" << std::endl;
     }
 }
 
@@ -103,7 +105,11 @@ void quantum::QuantumRegister::measure() {
     for (int i = 0; i < pow(2, this->numQubits); i++) {
         if (i == choice) {
             this->probs[i] = 1;
-            this->qubits.M()[i][0] = Complex(1, 0);
+            //std::cout << this->qubits.M()[i][0] << std::endl;
+            if (this->qubits.M()[i][0].Re() > 0)
+                this->qubits.M()[i][0] = Complex(1, 0);
+            else
+                this->qubits.M()[i][0] = Complex(-1, 0);
         }
         else {
             this->qubits.M()[i][0] = Complex(0, 0);
@@ -114,14 +120,20 @@ void quantum::QuantumRegister::measure() {
 
 void quantum::QuantumRegister::printState() {
     int controller = 0;
-    for (int i = 0; i < this->qubits.R(); i++) {
+    this->calcProb();
+    for (int i = 0; i < pow(2, this->numQubits); i++) {
         if (this->probs[i] > 0) {
-            if (!controller)
+            if (!controller) {
                 controller = 1;
-            else
-                std::cout << " +";
+            }
+            else {
+                std::cout << " + ";
+            }
+            if (this->qubits.M()[i][0].Re() < 0)
+                std::cout << "(-) ";
             if (this->probs[i] < 1)
                 std::cout << this->probs[i] << " * ";
+
             std::cout << "|";
             for (int k = 0; k < this->numQubits; k++) {
                 if (i % (int) pow(2, this->numQubits - k) < (int) pow(2, this->numQubits - k - 1))

@@ -216,15 +216,9 @@ quantum::Matrix<T> quantum::Matrix<T>::kronecker(Matrix<T> b, T initial) {
     y = this->m;
     z = b.M();
 
-    if (this->rows < b.R())
-        rows = this->rows;
-    else
-        rows = b.R();
+    rows = b.R();
 
-    if (this->columns < b.C())
-        cols = this->columns;
-    else
-        cols = b.C();
+    cols = b.C();
 
     if (TAG_DEBUG) std::cout << this->rows << " " << b.R() << " " << this->columns << " " << b.C() << std::endl;
 

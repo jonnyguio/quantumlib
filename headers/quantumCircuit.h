@@ -25,6 +25,7 @@ namespace quantum {
 
             void AddOp(QuantumOperator nOp);
             void Execute(QuantumRegister *qReg1);
+            void print();
     };
 }
 
