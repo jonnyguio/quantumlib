@@ -1,9 +1,11 @@
 #include <iostream>
 #include "../headers/complex.h"
 #include "../headers/matrix.h"
+#include <cmath>
 
 Complex::Complex() {
-
+    this->re = 0;
+    this->im = 0;
 }
 
 Complex::Complex(double re, double im) {
@@ -47,6 +49,10 @@ Complex Complex::operator/(Complex& cc) {
     c.re /= (cc.re * cc.re + cc.im * cc.im);
     c.im /= (cc.re * cc.re + cc.im * cc.im);
     return c;
+}
+
+double Complex::modulo() {
+    return sqrt(pow(this->re, 2) + pow(this->im, 2));
 }
 
 template class quantum::Matrix<Complex>;

@@ -1,7 +1,7 @@
 CC = g++
 CFLAGS = -Wall -std=c+11
 MAIN = main.out
-SRCS = sources/complex.cpp sources/quantumRegister.cpp main.cpp
+SRCS = sources/complex.cpp sources/quantumRegister.cpp sources/quantumOperator.cpp sources/quantumCircuit.cpp main.cpp
 OBJS = $(SRCS:.cpp=.o)
 
 .PHONY: depend clean

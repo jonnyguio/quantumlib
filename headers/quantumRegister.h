@@ -2,20 +2,35 @@
 #include "../headers/complex.h"
 #include "../headers/matrix.h"
 
-using namespace quantum;
+#ifndef D_GUARD_QREGISTER
+#define D_GUARD_QREGISTER
 
-class QuantumRegister {
-    private:
-        Matrix<Complex> qubits;
-        short int numQubits;
-    public:
-        QuantumRegister();
-        QuantumRegister(int num);
-        QuantumRegister(Matrix<Complex> q, int num);
+namespace quantum {
+    class QuantumRegister {
+        private:
+            Matrix<Complex> qubits;
+            short int numQubits;
+            double *probs;
 
-        Matrix<Complex> Qubits();
-        void Qubits(Matrix<Complex> q);
+        public:
+            QuantumRegister();
+            QuantumRegister(int num);
+            QuantumRegister(Matrix<Complex> q, int num);
 
-        short int NumQubits();
-        void NumQubits(short int n);
-};
+            Matrix<Complex> Qubits();
+            void Qubits(Matrix<Complex> q);
+
+            short int NumQubits();
+            void NumQubits(short int n);
+
+            double* Probs();
+
+            QuantumRegister Tensor(QuantumRegister b);
+
+            void calcProb();
+            void printProb();
+            void printState();
+            void measure();
+    };
+}
+#endif

@@ -25,6 +25,8 @@ class Complex {
         Complex operator-(const Complex& cc);
         Complex operator*(const Complex& cc);
         Complex operator/(Complex& cc);
+
+        double modulo();
 };
 
 inline std::ostream& operator<<(std::ostream &str, const Complex &c) {
