@@ -12,7 +12,7 @@
 using namespace std;
 using namespace quantum;
 
-#define QUBITSTEST 2
+#define QUBITSTEST 3
 
 // MAIN FOR TESTS
 
@@ -26,8 +26,7 @@ int main(int argc, char **argv) {
 
     init();
     std::cout << "ué" << std::endl;
-    carry = createCarry(QUBITSTEST, 0);
-    inverseCarry = createCarry(QUBITSTEST, 1);
+    carry = createCarry(QUBITSTEST);
     sum = createSum(QUBITSTEST);
     std::cout << "ué2" << std::endl;
 
@@ -65,8 +64,12 @@ int main(int argc, char **argv) {
         if (!i)
             qRegCarry = qRegs[0].Tensor(qRegs[1].Tensor(qRegs[2].Tensor(qRegs[3])));
         else
-            qRegCarry = qRegCarry.Tensor(qRegs[1].Tensor(qRegs[2].Tensor(qRegs[3])));
+            if (i + 1 < QUBITSTEST)
+                qRegCarry = qRegCarry.Tensor(qRegs[0].Tensor(qRegs[1].Tensor(qRegs[2].Tensor(qRegs[3]))));
+            else
+                qRegCarry = qRegCarry.Tensor(qRegs[1].Tensor(qRegs[2].Tensor(qRegs[3])));
     }
+
     qRegCarry.printState();
     cout << endl;
 
@@ -79,14 +82,10 @@ int main(int argc, char **argv) {
     qRegCarry.printState();
 
     carry.Execute(&qRegCarry);
-    qRegCarry.calcProb();
-    qRegCarry.printProb();
-    cout << endl;
     sum.Execute(&qRegCarry);
-    inverseCarry.Execute(&qRegCarry);
 
     std::cout.rdbuf(out.rdbuf());
-    sum.print();
+    carry.print();
     std::cout.rdbuf(coutbuf);
     qRegCarry.printState();
     cout << endl;

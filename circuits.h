@@ -12,11 +12,14 @@ using namespace quantum;
 #define D_GUARD_QCIRCUITS
 
 Complex one(1, 0), zero(0,0);
-QuantumOperator opID, opCNOT, opCCNOT, opSWAP, opHADAMARD, carryOPaux, carryOP;
+QuantumOperator
+    opcarryCCNOT, opID, opCNOT, opCCNOT, opSWAP, opHADAMARD,
+    icarryOPaux, carryOPaux, carryOP, carryOP1, carryOP2, carryOP3;
+
 int hadInit = 0;
 
 void init() {
-    Complex c2(1/sqrt(2), 0), c3(-1/sqrt(2), 0), *cid, *cHadamard, **cSwap, **cNotData, **ccNotData;
+    Complex c2(1/sqrt(2), 0), c3(-1/sqrt(2), 0), *cid, *cHadamard, **cSwap, **cNotData, **ccNotData, **carryccNotData;;
 
     hadInit = 1;
 
@@ -25,6 +28,7 @@ void init() {
     cSwap = (Complex **) malloc(sizeof(Complex) * 4);
     cNotData = (Complex **) malloc(sizeof(Complex*) * 4);
     ccNotData = (Complex **) malloc(sizeof(Complex*) * 8);
+    carryccNotData = (Complex **) malloc(sizeof(Complex*) * 16);
 
     for (int i = 0; i < 4; i++) {
         cSwap[i] = (Complex *) malloc(sizeof(Complex) * 4);
@@ -44,6 +48,13 @@ void init() {
         ccNotData[i] = (Complex *) malloc(sizeof(Complex) * 8);
         for (int j = 0; j < 8; j++) {
             ccNotData[i][j] = zero;
+        }
+    }
+
+    for (int i = 0; i < 16; i++) {
+        carryccNotData[i] = (Complex *) malloc(sizeof(Complex) * 16);
+        for (int j = 0; j < 8; j++) {
+            carryccNotData[i][j] = zero;
         }
     }
 
@@ -88,23 +99,6 @@ void init() {
 
     Matrix<Complex> mCCNOT(ccNotData, 8, 8);
     opCCNOT = *(new QuantumOperator(mCCNOT));
-}
-
-QuantumCircuit createCarry(int totalQubits, int order) {
-    Complex **carryccNotData;
-    Matrix<Complex> m1, m2, m3, m4;
-
-    QuantumOperator qcarryCCNOT, carryOP1, carryOP2, carryOP3;
-    QuantumCircuit carry;
-
-    carryccNotData = (Complex **) malloc(sizeof(Complex*) * 16);
-
-    for (int i = 0; i < 16; i++) {
-        carryccNotData[i] = (Complex *) malloc(sizeof(Complex) * 16);
-        for (int j = 0; j < 8; j++) {
-            carryccNotData[i][j] = zero;
-        }
-    }
 
     carryccNotData[0][0] = one; carryccNotData[1][1] = one;
     carryccNotData[2][2] = one; carryccNotData[3][3] = one;
@@ -116,54 +110,37 @@ QuantumCircuit createCarry(int totalQubits, int order) {
     carryccNotData[14][15] = one; carryccNotData[15][14] = one;
 
     Matrix<Complex> mcarryCCNOT(carryccNotData, 16, 16);
-    qcarryCCNOT = *(new QuantumOperator(mcarryCCNOT));
+    opcarryCCNOT = *(new QuantumOperator(mcarryCCNOT));
+}
+
+QuantumCircuit createCarry(int totalQubits) {
+    Matrix<Complex> m1, m2, m3, m4;
+
+    QuantumCircuit carry;
+
 
     carryOP1 = opID.Tensor(opCCNOT);
     carryOP2 = opID.Tensor(opCNOT.Tensor(opID));
-    carryOP3 = qcarryCCNOT;
-    if (!order)
-        m1 = carryOP1.Operator();
-    else
-        m1 = carryOP3.Operator();
+    carryOP3 = opcarryCCNOT;
+    m1 = carryOP1.Operator();
     m2 = carryOP2.Operator();
-    if (!order)
-        m3 = carryOP3.Operator();
-    else
-        m3 = carryOP1.Operator();
-
+    m3 = carryOP3.Operator();
     carryOP = *(new QuantumOperator());
     carryOPaux = *(new QuantumOperator());
+    icarryOPaux = *(new QuantumOperator());
 
-    //carry.AddOp(carryOP1);
-    //carry.AddOp(carryOP2);
-    //carry.AddOp(carryOP3);
     carryOPaux.Operator(m3 * m2 * m1);
+    icarryOPaux.Operator(m1 * m2 * m3);
 
-    if (!order) {
-        for (int i = 0; i < totalQubits; i++) {
-            carryOP = carryOPaux;
-            for (int j = 1; j < totalQubits; j++) {
-                if (i < j)
-                    carryOP = carryOP.Tensor(opID.Tensor(opID.Tensor(opID)));
-                else
-                    carryOP = opID.Tensor(opID.Tensor(opID.Tensor(carryOP)));
-            }
-            carry.AddOp(carryOP);
-        }
-    }
-    else {
-        for (int i = 0; i < totalQubits; i++) {
-            if (i > 0)
-                carryOP = carryOPaux;
+    for (int i = 0; i < totalQubits; i++) {
+        carryOP = carryOPaux;
+        for (int j = 1; j < totalQubits; j++) {
+            if (i < j)
+                carryOP = carryOP.Tensor(opID.Tensor(opID.Tensor(opID)));
             else
-                carryOP = opID.Tensor(opID.Tensor(opID.Tensor(opID)));
-            for (int j = 1; j < totalQubits; j++) {
-                if (i < j)
-                    carryOP = opID.Tensor(opID.Tensor(opID.Tensor(carryOP)));
-                else
-                    carryOP = carryOP.Tensor(opID.Tensor(opID.Tensor(opID)));
-            }
+                carryOP = opID.Tensor(opID.Tensor(opID.Tensor(carryOP)));
         }
+        carry.AddOp(carryOP);
     }
 
     return carry;
@@ -191,12 +168,21 @@ QuantumCircuit createSum(int totalQubits) {
 
     for (int i = 0; i < totalQubits; i++) {
         sumOP = sumOPaux;
+        if (i > 0)
+            carryOP = icarryOPaux;
+        else
+            carryOP = opID.Tensor(opID.Tensor(opID.Tensor(opID)));
         for (int j = 1; j < totalQubits; j++) {
-            if (i < j)
+            if (i < j) {
                 sumOP = opID.Tensor(opID.Tensor(opID.Tensor(sumOP)));
-            else
+                carryOP = opID.Tensor(opID.Tensor(opID.Tensor(carryOP)));
+            }
+            else {
                 sumOP = sumOP.Tensor(opID.Tensor(opID.Tensor(opID)));
+                carryOP = carryOP.Tensor(opID.Tensor(opID.Tensor(opID)));
+            }
         }
+        sum.AddOp(carryOP);
         sum.AddOp(sumOP);
     }
 
