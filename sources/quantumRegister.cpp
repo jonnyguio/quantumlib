@@ -118,6 +118,23 @@ void quantum::QuantumRegister::measure() {
     }
 }
 
+/*void quantum::QuantumRegister::measure(int *pos, int size) {
+    srand(time(NULL));
+    int random, choice = -1, total = 0;
+    random = (int) rand()%100;
+
+    for (int i = 0; i < size; i++) {
+        total += (int) ceil(this->probs[pos[i]] * 100);
+        if (random < total) {
+            choice = i;
+            break;
+        }
+    }
+    for (int i = 0; i < size; i++) {
+        this->probs[pos[i]] =
+    }
+}*/
+
 void quantum::QuantumRegister::printState() {
     int controller = 0;
     this->calcProb();

@@ -134,17 +134,36 @@ QuantumCircuit createCarry(int totalQubits, int order) {
     carryOP = *(new QuantumOperator());
     carryOPaux = *(new QuantumOperator());
 
-    carryOPaux.Operator(m1 * m2 * m3);
+    //carry.AddOp(carryOP1);
+    //carry.AddOp(carryOP2);
+    //carry.AddOp(carryOP3);
+    carryOPaux.Operator(m3 * m2 * m1);
 
-    for (int i = 0; i < totalQubits; i++) {
-        carryOP = carryOPaux;
-        for (int j = 1; j < totalQubits; j++) {
-            if (i < j)
-                carryOP = carryOP.Tensor(opID.Tensor(opID.Tensor(opID)));
-            else
-                carryOP = opID.Tensor(opID.Tensor(opID.Tensor(carryOP)));
+    if (!order) {
+        for (int i = 0; i < totalQubits; i++) {
+            carryOP = carryOPaux;
+            for (int j = 1; j < totalQubits; j++) {
+                if (i < j)
+                    carryOP = carryOP.Tensor(opID.Tensor(opID.Tensor(opID)));
+                else
+                    carryOP = opID.Tensor(opID.Tensor(opID.Tensor(carryOP)));
+            }
+            carry.AddOp(carryOP);
         }
-        carry.AddOp(carryOP);
+    }
+    else {
+        for (int i = 0; i < totalQubits; i++) {
+            if (i > 0)
+                carryOP = carryOPaux;
+            else
+                carryOP = opID.Tensor(opID.Tensor(opID.Tensor(opID)));
+            for (int j = 1; j < totalQubits; j++) {
+                if (i < j)
+                    carryOP = opID.Tensor(opID.Tensor(opID.Tensor(carryOP)));
+                else
+                    carryOP = carryOP.Tensor(opID.Tensor(opID.Tensor(opID)));
+            }
+        }
     }
 
     return carry;
@@ -157,26 +176,18 @@ QuantumCircuit createSum(int totalQubits) {
     Matrix<Complex> m1, m2;
 
     sumOP1 = opID.Tensor(opCNOT.Tensor(opID));
-    sumOP2 = sumOP2;
+    sumOP2 = opCNOT.Tensor(opID.Tensor(opID));
+
+    sum.AddOp(sumOP1);
 
     m1 = sumOP1.Operator();
+    m2 = sumOP2.Operator();
 
     //TERMINAR M2
-    sumOP2.Operator(m1 * m2);
-
     sumOP = *(new QuantumOperator());
     sumOPaux = *(new QuantumOperator());
 
-    sumOPaux.Operator(m1 * m2);
-
-    cNOTaux = opCNOT;
-
-    for (int i = 0; i < totalQubits; i++) {
-        cNOTaux = opID.Tensor(opID.Tensor(opID.Tensor(cNOTaux)));
-    }
-    cNOTaux = opID.Tensor(cNOTaux.Tensor(opID));
-    //cNOTaux.Operator().print();
-    sum.AddOp(cNOTaux);
+    sumOPaux.Operator(m2 * m1);
 
     for (int i = 0; i < totalQubits; i++) {
         sumOP = sumOPaux;

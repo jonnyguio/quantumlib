@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include "headers/complex.h"
 #include "headers/matrix.h"
 #include "headers/quantumRegister.h"
@@ -20,6 +21,8 @@ int main(int argc, char **argv) {
     Complex *reg;
     QuantumRegister *qRegs, qRegCarry;
     QuantumCircuit carry, sum, inverseCarry;
+    std::ofstream out("results.txt");
+    std::streambuf *coutbuf = std::cout.rdbuf();
 
     init();
     std::cout << "ué" << std::endl;
@@ -73,10 +76,18 @@ int main(int argc, char **argv) {
     cout << endl;
 
     cout << "Printing Quantum Circuit (CARRY) on Quantum Register Carry" << endl;
-    carry.Execute(&qRegCarry);
     qRegCarry.printState();
-    //sum.Execute(&qRegCarry);
-    //inverseCarry.Execute(&qRegCarry);
+
+    carry.Execute(&qRegCarry);
+    qRegCarry.calcProb();
+    qRegCarry.printProb();
+    cout << endl;
+    sum.Execute(&qRegCarry);
+    inverseCarry.Execute(&qRegCarry);
+
+    std::cout.rdbuf(out.rdbuf());
+    sum.print();
+    std::cout.rdbuf(coutbuf);
     qRegCarry.printState();
     cout << endl;
 
