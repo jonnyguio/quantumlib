@@ -37,7 +37,7 @@ QuantumOperator createCNOT(int tqubits, int *ctrls, int nctrls, int *nots, int n
             invert = 0;
         for ( i = 0; i < size; i++) {
             l = i;
-            if (invert) {
+            if (invert || nctrls) {
                 for ( k = 0; k < nnots; k++) {
                     if (j % (int) pow(2, (tqubits + 1 - nots[k])) < (int) pow(2, (tqubits + 1 - nots[k]) - 1))
                         l = (l - (tqubits + 1 - nots[k]));
@@ -94,7 +94,7 @@ QuantumOperator createSWAP(int tqubits, int *ctrls, int nctrls, int *swaps) {
         for (i = 0; i < size; i++) {
             l = i;
             c = 0;
-            if (swap) {
+            if (swap || !nctrls) {
                 if (j % sizeSWAP00 < sizeSWAP01) {
                     if (j % sizeSWAP10 >= sizeSWAP11) {
                         c = (swaps[0] > swaps[1]) ? sizeSWAP11 - sizeSWAP01 : sizeSWAP01 - sizeSWAP11;

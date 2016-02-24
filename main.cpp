@@ -13,16 +13,16 @@
 using namespace std;
 using namespace quantum;
 
-#define QUBITSTEST 2
+#define QUBITSTEST 1
 
 // MAIN FOR TESTS
 
 int main(int argc, char **argv) {
 
-    Complex *reg;
-    QuantumRegister *qRegs, qRegCarry;
+    Complex *reg, *n;
+    QuantumRegister *qRegs, qRegCarry, N;
     QuantumCircuit carry, sum, inverseCarry;
-    QuantumOperator adder, iadder, carrycosdjgfaosd, sumsfsodjf;
+    QuantumOperator adder, iadder, adderMod, sumsfsodjf;
 
     std::ofstream out("results.txt");
     std::streambuf *coutbuf = std::cout.rdbuf();
@@ -43,7 +43,17 @@ int main(int argc, char **argv) {
     }
 
     opHADAMARD.Execute(&qRegs[1]);
-    opHADAMARD.Execute(&qRegs[2]);
+    //opHADAMARD.Execute(&qRegs[2]);
+
+    n = (Complex *) malloc(sizeof(Complex) * 2);
+    n[0] = zero;
+    n[1] = one;
+    N = *(new QuantumRegister(Matrix<Complex>(n, 2, 1), 1));
+
+    for (int i = 1; i < QUBITSTEST; i++) {
+        N = N.Tensor(N);
+    }
+    N.printState();
 
     // Test Carry
 
@@ -98,11 +108,20 @@ int main(int argc, char **argv) {
 
     iadder.Execute(&qRegCarry);
 
+
     /*std::cout.rdbuf(out.rdbuf());
     carry.print();
     std::cout.rdbuf(coutbuf);*/
     qRegCarry.printState();
     cout << endl;
+
+    cout << "Executing adder modulo N" << endl;
+
+    adderMod = createAdderMod(&qRegCarry, QUBITSTEST, N);
+    qRegCarry.calcProb();
+    qRegCarry.printProb();
+    cout << endl;
+    adderMod.Execute(&qRegCarry);
 
     cout << "Calculating and printing probabilities of Quantum Register Carry" << endl;
     qRegCarry.calcProb();

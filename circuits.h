@@ -257,8 +257,116 @@ QuantumOperator createAdder(int totalQubits, int reverse) {
     return res;
 }
 
-QuantumOperator createAdderMod(int totalQubits, Matrix<Complex> N) {
-    QuantumOperator adderMod;
+QuantumOperator createAdderMod(QuantumRegister *reg, int totalQubits, QuantumRegister n) {
+    QuantumOperator adderMod, add, sub, swaps, cnot, tnot;
+    QuantumRegister z(1);
+    Matrix<Complex> m1, m2;
+
+    int ctrls[totalQubits], nots[totalQubits], wswaps[2];
+
+    z.Qubits(Matrix<Complex>(one, 1, 1));
+
+    for (int i = 0; i < totalQubits; i++) {
+        z = z.Tensor(z);
+    }
+
+    *reg = reg->Tensor(n.Tensor(z));
+
+    add = createAdder(totalQubits, 0);
+    sub = createAdder(totalQubits, 1);
+
+    for (int i = 0; i < totalQubits * 2 + 1; i++) {
+        add = add.Tensor(opID);
+        sub = sub.Tensor(opID);
+    }
+
+    adderMod = add;
+
+    //swaps = (QuantumOperator *) malloc(sizeof(QuantumOperator) * totalQubits);
+
+    for (int i = 0; i < totalQubits; i++) {
+        wswaps[0] = 3 * i + 2; wswaps[1] = (totalQubits * 3 + 1) + (i + 1);
+        if (!i)
+            swaps = createSWAP(totalQubits * 4 + 3, NULL, 0, (int *) wswaps);
+        else {
+            m1 = swaps.Operator();
+            m2 = createSWAP(totalQubits * 4 + 3, NULL, 0, (int *) wswaps).Operator();
+            swaps.Operator(m2 * m1);
+        }
+    }
+    m1 = adderMod.Operator();
+    m2 = swaps.Operator();
+
+    adderMod.Operator(m2 * m1);
+
+    m1 = adderMod.Operator();
+    m2 = sub.Operator();
+    adderMod.Operator(m2 * m1);
+
+    ctrls[0] = totalQubits * 3 + 1; nots[0] = totalQubits * 4 + 3;
+    tnot = createCNOT(totalQubits * 4 + 3, NULL, 0, (int *) nots, 1);
+    cnot = createCNOT(totalQubits * 4 + 3, (int *) ctrls, 1, (int *) nots, 1);
+
+    m1 = adderMod.Operator();
+    m2 = tnot.Operator();
+    adderMod.Operator(m2 * m1);
+    m1 = adderMod.Operator();
+    m2 = cnot.Operator();
+    adderMod.Operator(m2 * m1);
+    m1 = adderMod.Operator();
+    m2 = tnot.Operator();
+    adderMod.Operator(m2 * m1);
+
+    ctrls[0] = totalQubits * 4 + 3;
+    for (int i = 0; i < totalQubits; i++) {
+        wswaps[0] = 3 * i + 2; wswaps[1] = (totalQubits * 4 + 1) + (i + 1);
+        if (!i)
+            swaps = createSWAP(totalQubits * 4 + 3, (int *) ctrls, 1, (int *) wswaps);
+        else {
+            m1 = swaps.Operator();
+            m2 = createSWAP(totalQubits * 4 + 3, (int *) ctrls, 1, (int *) wswaps).Operator();
+            swaps.Operator(m2 * m1);
+        }
+    }
+    m1 = adderMod.Operator();
+    m2 = swaps.Operator();
+    adderMod.Operator(m2 * m1);
+
+    m1 = adderMod.Operator();
+    m2 = add.Operator();
+    adderMod.Operator(m2 * m1);
+
+    m1 = adderMod.Operator();
+    m2 = swaps.Operator();
+    adderMod.Operator(m2 * m1);
+
+    for (int i = 0; i < totalQubits; i++) {
+        wswaps[0] = 3 * i + 2; wswaps[1] = (totalQubits * 3 + 1) + (i + 1);
+        if (!i)
+            swaps = createSWAP(totalQubits * 4 + 3, NULL, 0, (int *) wswaps);
+        else {
+            m1 = swaps.Operator();
+            m2 = createSWAP(totalQubits * 4 + 3, NULL, 0, (int *) wswaps).Operator();
+            swaps.Operator(m2 * m1);
+        }
+    }
+
+    m1 = adderMod.Operator();
+    m2 = swaps.Operator();
+    adderMod.Operator(m2 * m1);
+
+    m1 = adderMod.Operator();
+    m2 = sub.Operator();
+    adderMod.Operator(m2 * m1);
+
+    m1 = adderMod.Operator();
+    m2 = cnot.Operator();
+    adderMod.Operator(m2 * m1);
+
+    m1 = adderMod.Operator();
+    m2 = add.Operator();
+    adderMod.Operator(m2 * m1);
+
     return adderMod;
 }
 
