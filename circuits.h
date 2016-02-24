@@ -144,7 +144,10 @@ QuantumOperator createCarry(int totalQubits, int reverse) {
     }
 
     for (int i = 0; i < totalQubits; i++) {
-        carryOP = carryOPaux;
+        if (!reverse)
+            carryOP = carryOPaux;
+        else
+            carryOP = icarryOPaux;
         for (int j = 1; j < totalQubits; j++) {
             if (!reverse) {
                 if (i < j)
@@ -202,7 +205,10 @@ QuantumOperator createSum(int totalQubits, int reverse) {
     for (int i = 0; i < totalQubits; i++) {
         sumOP = sumOPaux;
         if (i > 0) {
-            carryOP = icarryOPaux;
+            if (!reverse)
+                carryOP = icarryOPaux;
+            else
+                carryOP = carryOPaux;
             for (int j = 1; j < totalQubits; j++) {
                 if (i < j) {
                     sumOP = opID.Tensor(opID.Tensor(opID.Tensor(sumOP)));
@@ -238,8 +244,8 @@ QuantumOperator createAdder(int totalQubits, int reverse) {
     QuantumOperator carry, sum, res;
     Matrix<Complex> m1, m2;
 
-    carry = createCarry(totalQubits, 0);
-    sum = createSum(totalQubits, 0);
+    carry = createCarry(totalQubits, reverse);
+    sum = createSum(totalQubits, reverse);
     m1 = carry.Operator();
     m2 = sum.Operator();
 
