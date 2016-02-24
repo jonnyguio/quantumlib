@@ -5,6 +5,7 @@
 #include "headers/quantumRegister.h"
 #include "headers/quantumOperator.h"
 #include "headers/quantumCircuit.h"
+#include "operators.h"
 #include "circuits.h"
 #include <cstdlib>
 #include <cmath>
@@ -12,7 +13,7 @@
 using namespace std;
 using namespace quantum;
 
-#define QUBITSTEST 3
+#define QUBITSTEST 1
 
 // MAIN FOR TESTS
 
@@ -21,14 +22,17 @@ int main(int argc, char **argv) {
     Complex *reg;
     QuantumRegister *qRegs, qRegCarry;
     QuantumCircuit carry, sum, inverseCarry;
+    QuantumOperator cnot;
+
     std::ofstream out("results.txt");
     std::streambuf *coutbuf = std::cout.rdbuf();
 
     init();
     std::cout << "ué" << std::endl;
-    carry = createCarry(QUBITSTEST);
-    sum = createSum(QUBITSTEST);
+    //carry = createCarry(QUBITSTEST);
     std::cout << "ué2" << std::endl;
+    //sum = createSum(QUBITSTEST);
+    std::cout << "ué3" << std::endl;
 
     qRegs = (QuantumRegister *) malloc(sizeof(QuantumRegister) * 4);
     reg = (Complex *) malloc(sizeof(Complex) * 2);
@@ -64,9 +68,9 @@ int main(int argc, char **argv) {
         if (!i)
             qRegCarry = qRegs[0].Tensor(qRegs[1].Tensor(qRegs[2].Tensor(qRegs[3])));
         else
-            if (i + 1 < QUBITSTEST)
+            /*if (i + 1 < QUBITSTEST)
                 qRegCarry = qRegCarry.Tensor(qRegs[0].Tensor(qRegs[1].Tensor(qRegs[2].Tensor(qRegs[3]))));
-            else
+            else*/
                 qRegCarry = qRegCarry.Tensor(qRegs[1].Tensor(qRegs[2].Tensor(qRegs[3])));
     }
 
@@ -78,7 +82,15 @@ int main(int argc, char **argv) {
     qRegCarry.printProb();
     cout << endl;
 
-    cout << "Printing Quantum Circuit (CARRY) on Quantum Register Carry" << endl;
+    cout << "Creating CNOT" << endl;
+
+    int controller[2] = {2,3}, thenots[1] = {4};
+
+    cnot = createCNOT(4, (int *) &controller, 2, (int *)  &thenots, 1);
+    cnot.Operator().print();
+    cnot.Execute(&qRegCarry);
+
+    /*cout << "Printing Quantum Circuit (CARRY) on Quantum Register Carry" << endl;
     qRegCarry.printState();
 
     carry.Execute(&qRegCarry);
@@ -88,7 +100,7 @@ int main(int argc, char **argv) {
     carry.print();
     std::cout.rdbuf(coutbuf);
     qRegCarry.printState();
-    cout << endl;
+    cout << endl;*/
 
     cout << "Calculating and printing probabilities of Quantum Register Carry" << endl;
     qRegCarry.calcProb();
