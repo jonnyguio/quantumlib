@@ -82,12 +82,12 @@ int main(int argc, char **argv) {
     qRegCarry.printProb();
     cout << endl;
 
-    cout << "Creating CNOT" << endl;
+    cout << "Creating SWAP" << endl;
 
-    int controller[2] = {2,3}, thenots[1] = {4};
+    int controller[1] = {3}, swap[2] = {1, 2};
 
-    cnot = createCNOT(4, (int *) &controller, 2, (int *)  &thenots, 1);
-    cnot.Operator().print();
+    cnot = createSWAP(4, (int *) &controller, 1, (int *)  &swap);
+    //cnot.Operator().print();
     cnot.Execute(&qRegCarry);
 
     /*cout << "Printing Quantum Circuit (CARRY) on Quantum Register Carry" << endl;

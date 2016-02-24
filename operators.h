@@ -62,4 +62,69 @@ QuantumOperator createCNOT(int tqubits, int *ctrls, int nctrls, int *nots, int n
     return cnot;
 }
 
+QuantumOperator createSWAP(int tqubits, int *ctrls, int nctrls, int *swaps) {
+    QuantumOperator swapOP;
+    Complex **m;
+    int
+        swap, i, j, k, l, size, c,
+        sizeSWAP00, sizeSWAP01, sizeSWAP10, sizeSWAP11;
+
+    sizeSWAP00 = (int) pow(2, (tqubits - swaps[0] + 1));
+    sizeSWAP01 = (int) pow(2, (tqubits - swaps[0]));
+    sizeSWAP10 = (int) pow(2, (tqubits - swaps[1] + 1));
+    sizeSWAP11 = (int) pow(2, (tqubits - swaps[1]));
+
+    size = (int) pow(2, tqubits);
+    m = (Complex **) malloc(sizeof(Complex*) * size);
+
+    for (i = 0; i < size; i++) {
+        m[i] = (Complex *) malloc(sizeof(Complex) * size);
+    }
+
+
+    for (j = 0; j < size; j++) {
+        swap = 0;
+        for ( i = 0; i < nctrls; i++) {
+            if (j % (int) pow(2, tqubits - ctrls[i] + 1) >= (int) pow(2, tqubits - ctrls[i])) {
+                swap++;
+            }
+        }
+        if (swap < nctrls)
+            swap = 0;
+        //std::cout << swap << std::endl;
+        for (i = 0; i < size; i++) {
+            l = i;
+            c = 0;
+            if (swap) {
+                if (j % sizeSWAP00 < sizeSWAP01) {
+                    if (j % sizeSWAP10 >= sizeSWAP11) {
+                        c = (swaps[0] > swaps[1]) ? sizeSWAP11 - sizeSWAP01 : sizeSWAP01 - sizeSWAP11;
+                    }
+                }
+                else {
+                    if (j % sizeSWAP10 < sizeSWAP11) {
+                        c = (-swaps[0] < -swaps[1]) ? -(sizeSWAP11 - sizeSWAP01) : -(sizeSWAP01 - sizeSWAP11);
+                    }
+                }
+            }
+
+            l = (l - c) % size;
+
+            /*std::cout << "\t" << c << " " << l << " " << j << "\t";
+            std::cout << (j % sizeSWAP00 < sizeSWAP01) << " && " <<  (j % sizeSWAP10 >= sizeSWAP11) << "\t";
+            std::cout << (j % sizeSWAP00 >= sizeSWAP01) << " && " << (j % sizeSWAP10 < sizeSWAP11) << std::endl;*/
+
+            if (l % size == j)
+                m[i][j] = one;
+            else
+                m[i][j] = zero;
+        }
+    }
+
+    Matrix<Complex> matriz(m, size, size);
+    swapOP = *(new QuantumOperator(matriz, tqubits));
+
+    return swapOP;
+}
+
 #endif
