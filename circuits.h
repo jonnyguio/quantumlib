@@ -113,7 +113,7 @@ void init() {
     opcarryCCNOT = *(new QuantumOperator(mcarryCCNOT));
 }
 
-QuantumOperator createCarry(int totalQubits) {
+QuantumOperator createCarry(int totalQubits, int reverse) {
     Matrix<Complex> m1, m2, m3, m4;
 
     QuantumOperator c;
@@ -146,10 +146,18 @@ QuantumOperator createCarry(int totalQubits) {
     for (int i = 0; i < totalQubits; i++) {
         carryOP = carryOPaux;
         for (int j = 1; j < totalQubits; j++) {
-            if (i < j)
-                carryOP = carryOP.Tensor(opID.Tensor(opID.Tensor(opID)));
-            else
-                carryOP = opID.Tensor(opID.Tensor(opID.Tensor(carryOP)));
+            if (!reverse) {
+                if (i < j)
+                    carryOP = carryOP.Tensor(opID.Tensor(opID.Tensor(opID)));
+                else
+                    carryOP = opID.Tensor(opID.Tensor(opID.Tensor(carryOP)));
+            }
+            else {
+                if (i < j)
+                    carryOP = opID.Tensor(opID.Tensor(opID.Tensor(carryOP)));
+                else
+                    carryOP = carryOP.Tensor(opID.Tensor(opID.Tensor(opID)));
+            }
         }
         m1 = c.Operator();
         m2 = carryOP.Operator();
@@ -159,7 +167,7 @@ QuantumOperator createCarry(int totalQubits) {
     return c;
 }
 
-QuantumOperator createSum(int totalQubits) {
+QuantumOperator createSum(int totalQubits, int reverse) {
     QuantumOperator sumOP1, sumOP2, sumOP, sumOPaux, cNOTaux;
     QuantumCircuit sum;
     QuantumOperator s;
@@ -177,9 +185,12 @@ QuantumOperator createSum(int totalQubits) {
     m1 = sumOP1.Operator();
     m2 = sumOP2.Operator();
 
-    ctrls[0] = totalQubits * 3 - 1;
-    nots[0] = totalQubits * 3;
-    s = createCNOT(totalQubits * 3 + 1, (int *) ctrls, 1, (int *) nots, 1);
+    for (int i = 0; i < (totalQubits * 3 + 1); i++) {
+        if (i)
+            s = s.Tensor(opID);
+        else
+            s = opID;
+    }
     sum.AddOp(createCNOT(totalQubits * 3 + 1, (int *) ctrls, 1, (int *) nots, 1));
 
     //TERMINAR M2
@@ -190,31 +201,59 @@ QuantumOperator createSum(int totalQubits) {
 
     for (int i = 0; i < totalQubits; i++) {
         sumOP = sumOPaux;
-        if (i > 0)
+        if (i > 0) {
             carryOP = icarryOPaux;
-        else
-            carryOP = opID.Tensor(opID.Tensor(opID.Tensor(opID)));
-        for (int j = 1; j < totalQubits; j++) {
-            if (i < j) {
+            for (int j = 1; j < totalQubits; j++) {
+                if (i < j) {
+                    sumOP = opID.Tensor(opID.Tensor(opID.Tensor(sumOP)));
+                    carryOP = opID.Tensor(opID.Tensor(opID.Tensor(carryOP)));
+                }
+                else {
+                    sumOP = sumOP.Tensor(opID.Tensor(opID.Tensor(opID)));
+                    carryOP = carryOP.Tensor(opID.Tensor(opID.Tensor(opID)));
+                }
+            }
+        }
+        else {
+            ctrls[0] = totalQubits * 3 - 1;
+            nots[0] = totalQubits * 3;
+            carryOP = createCNOT(totalQubits * 3 + 1, (int *) ctrls, 1, (int *) nots, 1);
+            for (int j = 1; j < totalQubits; j++)
                 sumOP = opID.Tensor(opID.Tensor(opID.Tensor(sumOP)));
-                carryOP = opID.Tensor(opID.Tensor(opID.Tensor(carryOP)));
-            }
-            else {
-                sumOP = sumOP.Tensor(opID.Tensor(opID.Tensor(opID)));
-                carryOP = carryOP.Tensor(opID.Tensor(opID.Tensor(opID)));
-            }
         }
         m1 = s.Operator();
         m2 = carryOP.Operator();
         m3 = sumOP.Operator();
-        sum.AddOp(carryOP);
-        sum.AddOp(sumOP);
-        s.Operator(m3 * m2 * m1);
-
+        if (!reverse)
+            s.Operator(m3 * m2 * m1);
+        else
+            s.Operator(m1 * m2 * m3);
     }
 
     return s;
 
+}
+
+QuantumOperator createAdder(int totalQubits, int reverse) {
+    QuantumOperator carry, sum, res;
+    Matrix<Complex> m1, m2;
+
+    carry = createCarry(totalQubits, 0);
+    sum = createSum(totalQubits, 0);
+    m1 = carry.Operator();
+    m2 = sum.Operator();
+
+    if (!reverse)
+        res.Operator(m2 * m1);
+    else
+        res.Operator(m1 * m2);
+
+    return res;
+}
+
+QuantumOperator createAdderMod(int totalQubits, Matrix<Complex> N) {
+    QuantumOperator adderMod;
+    return adderMod;
 }
 
 #endif

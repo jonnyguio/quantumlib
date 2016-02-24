@@ -22,16 +22,16 @@ int main(int argc, char **argv) {
     Complex *reg;
     QuantumRegister *qRegs, qRegCarry;
     QuantumCircuit carry, sum, inverseCarry;
-    QuantumOperator carrycosdjgfaosd, sumsfsodjf;
+    QuantumOperator adder, iadder, carrycosdjgfaosd, sumsfsodjf;
 
     std::ofstream out("results.txt");
     std::streambuf *coutbuf = std::cout.rdbuf();
 
     init();
     std::cout << "ué" << std::endl;
-    carrycosdjgfaosd = createCarry(QUBITSTEST);
+    adder = createAdder(QUBITSTEST, 0);
     std::cout << "ué2" << std::endl;
-    sumsfsodjf = createSum(QUBITSTEST);
+    iadder = createAdder(QUBITSTEST, 1);
     std::cout << "ué3" << std::endl;
 
     qRegs = (QuantumRegister *) malloc(sizeof(QuantumRegister) * 4);
@@ -93,13 +93,10 @@ int main(int argc, char **argv) {
     cout << "Printing Quantum Circuit (CARRY) on Quantum Register Carry" << endl;
     qRegCarry.printState();
 
-    carrycosdjgfaosd.Execute(&qRegCarry);
-    qRegCarry.calcProb();
-    qRegCarry.printProb();
-    cout << endl;
-    qRegCarry.printState();
 
-    sumsfsodjf.Execute(&qRegCarry);
+    adder.Execute(&qRegCarry);
+
+    iadder.Execute(&qRegCarry);
 
     /*std::cout.rdbuf(out.rdbuf());
     carry.print();
