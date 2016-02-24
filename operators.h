@@ -26,7 +26,6 @@ QuantumOperator createCNOT(int tqubits, int *ctrls, int nctrls, int *nots, int n
         m[i] = (Complex *) malloc(sizeof(Complex) * size);
     }
 
-
     for (j = 0; j < size; j++) {
         invert = 0;
         for ( i = 0; i < nctrls; i++) {

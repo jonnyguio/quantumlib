@@ -13,7 +13,7 @@
 using namespace std;
 using namespace quantum;
 
-#define QUBITSTEST 1
+#define QUBITSTEST 2
 
 // MAIN FOR TESTS
 
@@ -29,9 +29,9 @@ int main(int argc, char **argv) {
 
     init();
     std::cout << "ué" << std::endl;
-    //carry = createCarry(QUBITSTEST);
+    carry = createCarry(QUBITSTEST);
     std::cout << "ué2" << std::endl;
-    //sum = createSum(QUBITSTEST);
+    sum = createSum(QUBITSTEST);
     std::cout << "ué3" << std::endl;
 
     qRegs = (QuantumRegister *) malloc(sizeof(QuantumRegister) * 4);
@@ -82,25 +82,25 @@ int main(int argc, char **argv) {
     qRegCarry.printProb();
     cout << endl;
 
-    cout << "Creating SWAP" << endl;
+    /*cout << "Creating SWAP" << endl;
 
     int controller[1] = {3}, swap[2] = {1, 2};
 
     cnot = createSWAP(4, (int *) &controller, 1, (int *)  &swap);
-    //cnot.Operator().print();
-    cnot.Execute(&qRegCarry);
+    cnot.Operator().print();
+    cnot.Execute(&qRegCarry);*/
 
-    /*cout << "Printing Quantum Circuit (CARRY) on Quantum Register Carry" << endl;
+    cout << "Printing Quantum Circuit (CARRY) on Quantum Register Carry" << endl;
     qRegCarry.printState();
 
     carry.Execute(&qRegCarry);
     sum.Execute(&qRegCarry);
 
-    std::cout.rdbuf(out.rdbuf());
+    /*std::cout.rdbuf(out.rdbuf());
     carry.print();
-    std::cout.rdbuf(coutbuf);
+    std::cout.rdbuf(coutbuf);*/
     qRegCarry.printState();
-    cout << endl;*/
+    cout << endl;
 
     cout << "Calculating and printing probabilities of Quantum Register Carry" << endl;
     qRegCarry.calcProb();

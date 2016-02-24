@@ -117,9 +117,11 @@ QuantumCircuit createCarry(int totalQubits) {
     Matrix<Complex> m1, m2, m3, m4;
 
     QuantumCircuit carry;
+    int ctrls[4], nots[4];
 
-
-    carryOP1 = opID.Tensor(opCCNOT);
+    ctrls[0] = 2; ctrls[1] = 3;
+    nots[0] = 4;
+    carryOP1 = createCNOT(4, (int *) ctrls, 2, (int *) nots, 1); //opID.Tensor(opCCNOT);
     carryOP2 = opID.Tensor(opCNOT.Tensor(opID));
     carryOP3 = opcarryCCNOT;
     m1 = carryOP1.Operator();
@@ -146,13 +148,16 @@ QuantumCircuit createCarry(int totalQubits) {
     return carry;
 }
 
-QuantumOperator createSum(int totalQubits) {
+QuantumCircuit createSum(int totalQubits) {
     QuantumOperator sumOP1, sumOP2, sumOP, sumOPaux, cNOTaux;
-    QuantumOperator sum;
+    QuantumCircuit sum;
 
     Matrix<Complex> m1, m2, m3;
+    int ctrls[4], nots[4];
 
-    sumOP1 = opID.Tensor(opCNOT.Tensor(opID));
+    ctrls[0] = 2;
+    nots[0] = 3;
+    sumOP1 = createCNOT(4, (int *) ctrls, 1, (int *) nots, 1);//opID.Tensor(opCNOT.Tensor(opID));
     sumOP2 = opCNOT.Tensor(opID.Tensor(opID));
 
     //sum.AddOp(sumOP1);
@@ -160,10 +165,13 @@ QuantumOperator createSum(int totalQubits) {
     m1 = sumOP1.Operator();
     m2 = sumOP2.Operator();
 
+    ctrls[0] = totalQubits * 3 - 1;
+    nots[0] = totalQubits * 3;
+    sum.AddOp(createCNOT(totalQubits * 3 + 1, (int *) ctrls, 1, (int *) nots, 1));
+
     //TERMINAR M2
     sumOP = *(new QuantumOperator());
     sumOPaux = *(new QuantumOperator());
-    sum = *(new QuantumOperator());
 
     sumOPaux.Operator(m2 * m1);
 
@@ -171,26 +179,20 @@ QuantumOperator createSum(int totalQubits) {
         sumOP = sumOPaux;
         if (i > 0)
             carryOP = icarryOPaux;
-        else {
+        else
             carryOP = opID.Tensor(opID.Tensor(opID.Tensor(opID)));
-            sum = opID.Tensor(opID.Tensor(opID.Tensor(opID)));
-        }
         for (int j = 1; j < totalQubits; j++) {
             if (i < j) {
                 sumOP = opID.Tensor(opID.Tensor(opID.Tensor(sumOP)));
                 carryOP = opID.Tensor(opID.Tensor(opID.Tensor(carryOP)));
-                if (i == 0)
-                    sum = sum.Tensor(opID.Tensor(opID.Tensor(opID)));
             }
             else {
                 sumOP = sumOP.Tensor(opID.Tensor(opID.Tensor(opID)));
                 carryOP = carryOP.Tensor(opID.Tensor(opID.Tensor(opID)));
             }
         }
-        m3 = sum.Operator();
-        m1 = carryOP.Operator();
-        m2 = sumOP.Operator();
-        sum.Operator(m3 * m1 * m2);
+        sum.AddOp(carryOP);
+        sum.AddOp(sumOP);
 
     }
 
