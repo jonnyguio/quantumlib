@@ -180,7 +180,6 @@ QuantumOperator createCarry(int totalQubits, int reverse) {
 
 QuantumOperator createSum(int totalQubits, int reverse) {
     QuantumOperator sumOP1, sumOP2, sumOP, sumOPaux, cNOTaux;
-    QuantumCircuit sum;
     QuantumOperator s;
 
     Matrix<Complex> m1, m2, m3;
@@ -202,7 +201,7 @@ QuantumOperator createSum(int totalQubits, int reverse) {
         else
             s = opID;
     }
-    sum.AddOp(createCNOT(totalQubits * 3 + 1, (int *) ctrls, 1, (int *) nots, 1));
+    //sum.AddOp(createCNOT(totalQubits * 3 + 1, (int *) ctrls, 1, (int *) nots, 1));
 
     //TERMINAR M2
     sumOP = *(new QuantumOperator());

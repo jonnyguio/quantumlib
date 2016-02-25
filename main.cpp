@@ -13,7 +13,7 @@
 using namespace std;
 using namespace quantum;
 
-#define QUBITSTEST 2
+//#define QUBITSTEST 2
 
 // MAIN FOR TESTS
 
@@ -27,13 +27,14 @@ int main(int argc, char *argv[]) {
     std::ofstream out("results.txt");
     std::streambuf *coutbuf = std::cout.rdbuf();
 
-    int choice;
+    int choice, QUBITSTEST;
 
-    if (argc < 2) {
-        cout << "Usage: <0 or 1>.\n0 = adder, 1 = adder mod" << endl;
+    if (argc < 3) {
+        cout << "Usage: <0 or 1> <qubits>.\n0 = adder, 1 = adder mod" << endl;
         return 1;
     }
     choice = atoi(argv[1]);
+    QUBITSTEST = atoi(argv[2]);
 
     init();
     if (TAG_DEBUG) std::cout << "ué" << std::endl;
@@ -142,9 +143,9 @@ int main(int argc, char *argv[]) {
     if (choice == 1) {
 
         cout << "Preparing Adder Modulo N and Executing" << endl;
-        cout << "In this example, we could only test 1 qubit, and b is fixed in |0>, while a is |+>. N is |1>";
+        cout << "In this example, we could only test 1 qubit, and b is fixed in |0>, while a is |+>. N is |1>" << endl;
 
-        adderMod = createAdderMod(&qRegCarry, 1, N);
+        adderMod = createAdderMod(&qRegCarry, QUBITSTEST, N);
         qRegCarry.calcProb();
         qRegCarry.printProb();
         cout << endl;
