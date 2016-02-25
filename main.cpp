@@ -13,11 +13,11 @@
 using namespace std;
 using namespace quantum;
 
-#define QUBITSTEST 1
+#define QUBITSTEST 2
 
 // MAIN FOR TESTS
 
-int main(int argc, char **argv) {
+int main(int argc, char *argv[]) {
 
     Complex *reg, *n;
     QuantumRegister *qRegs, qRegCarry, N;
@@ -26,6 +26,14 @@ int main(int argc, char **argv) {
 
     std::ofstream out("results.txt");
     std::streambuf *coutbuf = std::cout.rdbuf();
+
+    int choice;
+
+    if (argc < 2) {
+        cout << "Usage: <0 or 1>.\n0 = adder, 1 = adder mod" << endl;
+        return 1;
+    }
+    choice = atoi(argv[1]);
 
     init();
     std::cout << "ué" << std::endl;
@@ -43,7 +51,6 @@ int main(int argc, char **argv) {
     }
 
     opHADAMARD.Execute(&qRegs[1]);
-    //opHADAMARD.Execute(&qRegs[2]);
 
     n = (Complex *) malloc(sizeof(Complex) * 2);
     n[0] = zero;
@@ -57,7 +64,7 @@ int main(int argc, char **argv) {
 
     // Test Carry
 
-    cout << "Printing Quantum Register 0" << endl;
+    /*cout << "Printing Quantum Register 0" << endl;
     qRegs[0].Qubits().print();
     cout << endl;
 
@@ -78,16 +85,13 @@ int main(int argc, char **argv) {
         if (!i)
             qRegCarry = qRegs[0].Tensor(qRegs[1].Tensor(qRegs[2].Tensor(qRegs[3])));
         else
-            /*if (i + 1 < QUBITSTEST)
-                qRegCarry = qRegCarry.Tensor(qRegs[0].Tensor(qRegs[1].Tensor(qRegs[2].Tensor(qRegs[3]))));
-            else*/
-                qRegCarry = qRegCarry.Tensor(qRegs[1].Tensor(qRegs[2].Tensor(qRegs[3])));
+            qRegCarry = qRegCarry.Tensor(qRegs[1].Tensor(qRegs[2].Tensor(qRegs[3])));
     }
 
     qRegCarry.printState();
-    cout << endl;
+    cout << endl;*/
 
-    cout << "Calculating and printing probabilities of Quantum Register Carry" << endl;
+    cout << "Calculating and printing probabilities of Quantum Register" << endl;
     qRegCarry.calcProb();
     qRegCarry.printProb();
     cout << endl;
@@ -100,30 +104,52 @@ int main(int argc, char **argv) {
     cnot.Operator().print();
     cnot.Execute(&qRegCarry);*/
 
-    cout << "Printing Quantum Circuit (CARRY) on Quantum Register Carry" << endl;
-    qRegCarry.printState();
+    if (choice == 0) {
+        cout << "Executing Quantum Adder and Inverse Adder (Subtractor)" << endl;
+        qRegCarry.printState();
 
 
-    adder.Execute(&qRegCarry);
+        //adder.Operator().print();
+        adder.Execute(&qRegCarry);
+        cout << "After adder:" << endl;
+        qRegCarry.calcProb();
+        qRegCarry.printProb();
+        cout << endl;
+        cout << "After Subtractor:" << endl;
+        iadder.Execute(&qRegCarry);
+        qRegCarry.calcProb();
+        qRegCarry.printProb();
+        cout << endl;
+        cout << "Again, Subtractor" << endl;
+        iadder.Execute(&qRegCarry);
+        qRegCarry.calcProb();
+        qRegCarry.printProb();
+        cout << endl;
+        cout << "Reseting with another adder" << endl;
+        adder.Execute(&qRegCarry);
+        qRegCarry.calcProb();
+        qRegCarry.printProb();
+        cout << endl;
 
-    iadder.Execute(&qRegCarry);
+        /*std::cout.rdbuf(out.rdbuf());
+        carry.print();
+        std::cout.rdbuf(coutbuf);*/
+        qRegCarry.printState();
+        cout << endl;
+    }
+    if (choice == 1) {
 
+        cout << "Preparing Adder Modulo N and Executing" << endl;
+        cout << "In this example, we could only test 1 qubit, and b is fixed in |0>, while a is |+>. N is |1>";
 
-    /*std::cout.rdbuf(out.rdbuf());
-    carry.print();
-    std::cout.rdbuf(coutbuf);*/
-    qRegCarry.printState();
-    cout << endl;
+        adderMod = createAdderMod(&qRegCarry, 1, N);
+        qRegCarry.calcProb();
+        qRegCarry.printProb();
+        cout << endl;
+        adderMod.Execute(&qRegCarry);
+    }
 
-    cout << "Executing adder modulo N" << endl;
-
-    adderMod = createAdderMod(&qRegCarry, QUBITSTEST, N);
-    qRegCarry.calcProb();
-    qRegCarry.printProb();
-    cout << endl;
-    adderMod.Execute(&qRegCarry);
-
-    cout << "Calculating and printing probabilities of Quantum Register Carry" << endl;
+    cout << "Showing final probabilities" << endl;
     qRegCarry.calcProb();
     qRegCarry.printProb();
     cout << endl;

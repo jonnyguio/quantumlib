@@ -37,7 +37,7 @@ QuantumOperator createCNOT(int tqubits, int *ctrls, int nctrls, int *nots, int n
             invert = 0;
         for ( i = 0; i < size; i++) {
             l = i;
-            if (invert || nctrls) {
+            if (invert || !nctrls) {
                 for ( k = 0; k < nnots; k++) {
                     if (j % (int) pow(2, (tqubits + 1 - nots[k])) < (int) pow(2, (tqubits + 1 - nots[k]) - 1))
                         l = (l - (tqubits + 1 - nots[k]));

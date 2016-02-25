@@ -127,8 +127,14 @@ QuantumOperator createCarry(int totalQubits, int reverse) {
     ctrls[0] = 1; ctrls[1] = 3; nots[0] = 4;
     carryOP3 = createCNOT(4, (int *) ctrls, 2, (int *) nots, 1);//opcarryCCNOT;
     m1 = carryOP1.Operator();
+    //m1.print();
+    //std::cout << std::endl;
     m2 = carryOP2.Operator();
+    //m2.print();
+    //std::cout << std::endl;
     m3 = carryOP3.Operator();
+    //m3.print();
+    //std::cout << std::endl;
 
     carryOP = *(new QuantumOperator());
     carryOPaux = *(new QuantumOperator());
@@ -165,6 +171,8 @@ QuantumOperator createCarry(int totalQubits, int reverse) {
         m1 = c.Operator();
         m2 = carryOP.Operator();
         c.Operator(m2 * m1);
+        //c.Operator().print();
+        //std::cout << std::endl;
     }
 
     return c;
@@ -242,12 +250,18 @@ QuantumOperator createSum(int totalQubits, int reverse) {
 
 QuantumOperator createAdder(int totalQubits, int reverse) {
     QuantumOperator carry, sum, res;
-    Matrix<Complex> m1, m2;
+    Matrix<Complex> m1, m2, m3;
 
     carry = createCarry(totalQubits, reverse);
+    //carry.Operator().print();
+    //std::cout << std::endl;
     sum = createSum(totalQubits, reverse);
+    //sum.Operator().print();
+    //std::cout << std::endl;
     m1 = carry.Operator();
     m2 = sum.Operator();
+    m3 = m2 * m1;
+    //m3.print();
 
     if (!reverse)
         res.Operator(m2 * m1);
@@ -304,7 +318,7 @@ QuantumOperator createAdderMod(QuantumRegister *reg, int totalQubits, QuantumReg
     adderMod.Operator(m2 * m1);
 
     ctrls[0] = totalQubits * 3 + 1; nots[0] = totalQubits * 4 + 3;
-    tnot = createCNOT(totalQubits * 4 + 3, NULL, 0, (int *) nots, 1);
+    tnot = createCNOT(totalQubits * 4 + 3, NULL, 0, (int *) ctrls, 1);
     cnot = createCNOT(totalQubits * 4 + 3, (int *) ctrls, 1, (int *) nots, 1);
 
     m1 = adderMod.Operator();
