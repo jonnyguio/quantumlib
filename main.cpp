@@ -36,11 +36,11 @@ int main(int argc, char *argv[]) {
     choice = atoi(argv[1]);
 
     init();
-    std::cout << "ué" << std::endl;
+    if (TAG_DEBUG) std::cout << "ué" << std::endl;
     adder = createAdder(QUBITSTEST, 0);
-    std::cout << "ué2" << std::endl;
+    if (TAG_DEBUG) std::cout << "ué2" << std::endl;
     iadder = createAdder(QUBITSTEST, 1);
-    std::cout << "ué3" << std::endl;
+    if (TAG_DEBUG) std::cout << "ué3" << std::endl;
 
     qRegs = (QuantumRegister *) malloc(sizeof(QuantumRegister) * 4);
     reg = (Complex *) malloc(sizeof(Complex) * 2);
@@ -51,6 +51,8 @@ int main(int argc, char *argv[]) {
     }
 
     opHADAMARD.Execute(&qRegs[1]);
+    if (!choice)
+        opHADAMARD.Execute(&qRegs[2]);
 
     n = (Complex *) malloc(sizeof(Complex) * 2);
     n[0] = zero;
@@ -78,9 +80,9 @@ int main(int argc, char *argv[]) {
 
     cout << "Printing Quantum Register C (carry)" << endl;
     qRegs[3].Qubits().print();
-    cout << endl;
+    cout << endl;*/
 
-    cout << "Printing Quantum Register Zero tensor Quantum Register A tensor Quantum Register B tensor Quantum Register C" << endl;
+    //cout << "Printing Quantum Register Zero tensor Quantum Register A tensor Quantum Register B tensor Quantum Register C" << endl;
     for (int i = 0; i < QUBITSTEST; i++) {
         if (!i)
             qRegCarry = qRegs[0].Tensor(qRegs[1].Tensor(qRegs[2].Tensor(qRegs[3])));
@@ -89,7 +91,7 @@ int main(int argc, char *argv[]) {
     }
 
     qRegCarry.printState();
-    cout << endl;*/
+    cout << endl;
 
     cout << "Calculating and printing probabilities of Quantum Register" << endl;
     qRegCarry.calcProb();
